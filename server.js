@@ -6,11 +6,17 @@ var redis = require('redis'),
     client = redis.createClient();
 var clarifai = require('clarifai');
 
+
+// Set up server
 var clarifai = new Clarifai.App({
     apiKey: 'edac3a3bf1654cc29a7ecf97f921fbf9'
 });
 
 var app = express();
+
+client.on("error", function (err) {
+    console.log("Error " + err);
+});
 
 // Heartbeat
 app.get('/', function(req, res) {
