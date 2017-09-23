@@ -2,7 +2,9 @@ var http = require('http');
 var url = require('url');
 var querystring = require('querystring');
 var express = require('express');
+var redis = require('redis');
 var clarifai = require('clarifai');
+
 
 // Set up server
 var port = process.env.PORT || 8080;
@@ -12,18 +14,50 @@ var clarifai = new Clarifai.App({
 });
 
 var app = express();
+var client = redis.createClient();
 
 // Heartbeat
 app.get('/', function(req, res) {
-    res.send(200)
+    res.send(200);
 });
 
-// POST request w/ image and return first five objects from Clarifai API
+// Recieve POST request w/ image and return first five predictions as a JSON object
 app.get('/image', function(req, res) {
     var imageURL = req.param('data');
 });
 
-// Take 
+// Save an Image to the database
+function saveImage(imageUrl) {
+    client.set('image', imageUrl, function(err, reply) {
+        console.log(reply);
+        
+        if (typeof err !== 'null' || typeof err!== 'undefined') {
+            return true
+        } else {
+            return false
+            console.log("Image not set");
+        }
+    });
+};
+
+
+// Query Clarifai API with the last saved image and return JSON
+function getImagePredictions() {
+    client.get('image', function(err, reply) {
+        console.log(reply);
+        
+        var imageUrl = reply;
+    
+        app.models.predict(Clarifai.GENERAL_MODEL, imageUrl).then(
+             function(response) {
+               console.log(response);
+             },
+             function(err) {
+               console.error(err);
+             }
+         );
+    });
+}
 
 // Start server
 app.listen(port);
