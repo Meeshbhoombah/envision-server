@@ -5,7 +5,6 @@ var express = require('express');
 var redis = require('redis');
 var clarifai = require('clarifai');
 
-
 // Set up server
 var port = process.env.PORT || 8080;
 
@@ -29,14 +28,12 @@ app.get('/image', function(req, res) {
 // Save an Image to the database
 function saveImage(imageUrl) {
     client.set('image', imageUrl, function(err, reply) {
-        console.log(reply);
-        
-        if (typeof err !== 'null' || typeof err!== 'undefined') {
-            return true
-        } else {
-            return false
-            console.log("Image not set");
-        }
+        function(err) {
+            console.log(response);
+        },
+        function(reply) {
+            conssole.error(err);
+        }  
     });
 };
 
@@ -60,5 +57,5 @@ function getImagePredictions() {
 }
 
 // Start server
-app.listen(port);
+app.listen(5000);
 console.log('Express server listening on port ' + app.get('port'));
