@@ -28,10 +28,10 @@ app.get('/image', function(req, res) {
 // Save an Image to the database
 function saveImage(imageUrl) {
     client.set('image', imageUrl, function(err, reply) {
-        function(err) {
-            console.log(response);
-        },
         function(reply) {
+            console.log(reply);
+        },
+        function(err) {
             conssole.error(err);
         }  
     });
