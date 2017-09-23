@@ -2,18 +2,15 @@ var http = require('http');
 var url = require('url');
 var querystring = require('querystring');
 var express = require('express');
-var redis = require('redis');
+var redis = require('redis'),
+    client = redis.createClient();
 var clarifai = require('clarifai');
-
-// Set up server
-var port = process.env.PORT || 8080;
 
 var clarifai = new Clarifai.App({
     apiKey: 'edac3a3bf1654cc29a7ecf97f921fbf9'
 });
 
 var app = express();
-var client = redis.createClient();
 
 // Heartbeat
 app.get('/', function(req, res) {
@@ -57,7 +54,7 @@ function getImagePredictions() {
     });
 }
 
-app.set('port', process.env.PORT || 4040);
+app.set('port', process.env.PORT || 8080);
 // Start server
 http.createServer(app).listen(app.get('port'),
   function(){
