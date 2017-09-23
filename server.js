@@ -28,15 +28,16 @@ app.get('/image', function(req, res) {
 // Save an Image to the database
 function saveImage(imageUrl) {
     client.set('image', imageUrl, function(err, reply) {
-        function(reply) {
-            console.log(reply);
-        },
-        function(err) {
-            conssole.error(err);
-        }  
+        console.log(reply);
+        
+        if (typeof err !== 'null' || typeof err!== 'undefined') {
+            return true
+        } else {
+            return false
+            console.log("Image not set");
+        }
     });
 };
-
 
 // Query Clarifai API with the last saved image and return JSON
 function getImagePredictions() {
@@ -56,6 +57,9 @@ function getImagePredictions() {
     });
 }
 
+app.set('port', process.env.PORT || 4040);
 // Start server
-app.listen(5000);
-console.log('Express server listening on port ' + app.get('port'));
+http.createServer(app).listen(app.get('port'),
+  function(){
+    console.log("Express server listening on port " + app.get('port'));
+});
