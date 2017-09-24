@@ -5,6 +5,8 @@ var express = require('express');
 var redis = require('redis'),
     client = redis.createClient();
 var clarifai = require('clarifai');
+var bodyParser = require('body-parser');
+var multer = require('multer');
 
 // Set up server
 var clarifai = new Clarifai.App({
@@ -12,54 +14,32 @@ var clarifai = new Clarifai.App({
 });
 
 var app = express();
+app.use(bodyParser({limit: '10gb'}));
+app.use(bodyParser.json({limit: '50mb'}));
+app.use(bodyParser.urlencoded({ 
+    extended: false,
+    parameterLimit: 1000000 // experiment with this parameter and tweak
+}));
 
 client.on("error", function (err) {
     console.log("Error " + err);
 });
 
-// Heartbeat
-app.get('/', function(req, res) {
-    res.send(200);
-});
-
 // Recieve POST request w/ image and return first five predictions as a JSON object
-app.post('/image', function(req, res) {
-    var imageURL = req.param('data');
+app.post('/image', function(req, res, data) {
+    var imageURL = req.file;
+    console.log(req.file);
+    console.log(req.body);
 
-    saveImage(imageURL) 
-});
-
-// Save an Image to the database
-function saveImage(imageUrl) {
-    client.set('image', imageUrl, function(err, reply) {
-        console.log(reply);
-        
-        if (typeof err !== 'null' || typeof err!== 'undefined') {
-            return true
-        } else {
-            return false
-            console.log("Image not set");
+    app.models.predict(Clarifai.GENERAL_MODEL, {base64: imageURL}).then(
+        function(response) {
+            console.log(response.body);
+        },
+        function(err) {
+            console.error(err);
         }
-    });
-};      
-
-// Query Clarifai API with the last saved image and return JSON
-function getImagePredictions() {
-    client.get('image', function(err, reply) {
-        console.log(reply);
-        
-        var imageUrl = reply;
-    
-        app.models.predict(Clarifai.GENERAL_MODEL, imageUrl).then(
-             function(response) {
-               console.log(response);
-             },
-             function(err) {
-               console.error(err);
-             }
-         );
-    });
-}
+    );
+});
 
 app.set('port', process.env.PORT || 8080);
 // Start server
