@@ -6,7 +6,6 @@ var redis = require('redis'),
     client = redis.createClient();
 var clarifai = require('clarifai');
 
-
 // Set up server
 var clarifai = new Clarifai.App({
     apiKey: 'edac3a3bf1654cc29a7ecf97f921fbf9'
@@ -24,8 +23,10 @@ app.get('/', function(req, res) {
 });
 
 // Recieve POST request w/ image and return first five predictions as a JSON object
-app.get('/image', function(req, res) {
+app.post('/image', function(req, res) {
     var imageURL = req.param('data');
+
+    saveImage(imageURL) 
 });
 
 // Save an Image to the database
@@ -40,7 +41,7 @@ function saveImage(imageUrl) {
             console.log("Image not set");
         }
     });
-};
+};      
 
 // Query Clarifai API with the last saved image and return JSON
 function getImagePredictions() {
